@@ -50,8 +50,8 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl station create "${WEEWX_HOME}" --no-prompt \
         --driver=weewx.drivers.simulator \
         --altitude="41, meter" \
-        --latitude=51.02792609182648 \
-        --longitude=5.331987454591768 \
+        --latitude="51.02792609182648" \
+        --longitude="5.331987454591768" \
         --location="Heusden-Zolder, Belgium" \
         --units="metric"
 
