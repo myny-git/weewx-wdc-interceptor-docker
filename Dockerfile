@@ -49,11 +49,13 @@ RUN python3 -m venv ${WEEWX_HOME}/weewx-venv &&\
 RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl station create "${WEEWX_HOME}" --no-prompt \
         --driver=weewx.drivers.simulator \
-        --altitude="41, meter" \
-        --latitude="51.02792609182648" \
-        --longitude="5.331987454591768" \
+        --altitude="41,meter" \
+        --latitude=51.02792609182648 \
+        --longitude=5.331987454591768 \
         --location="Heusden-Zolder, Belgium" \
         --units="metric"
+      
+
 
 RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-interceptor.zip &&\
@@ -77,9 +79,6 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    
     cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
 
 
-#RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://user:password@host:port\n        topic = weather\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[windSpeed]]]]\n                format = %.0f\n            [[[[windGust]]]]\n                format = %.0f|g' weewx.conf
-
-#RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://192.168.50.163:1883\n        topic = weather2\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[rain]]]]\n                name = dayRain_mm\n                units = mm\n            [[[[rainRate]]]]\n                name = rainRate_mm_per_hour\n                units = mm_per_hour|g' weewx.conf
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
