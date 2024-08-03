@@ -10,7 +10,7 @@ rm -f /run/rsyslogd.pid
 service rsyslog start
 
 # start weewx
-echo 'Starting weewx'
+echo 'Starting weewx 5.1.0'
 
 # shellcheck source=/dev/null
 . "${WEEWX_HOME}"/weewx-venv/bin/activate
