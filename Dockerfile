@@ -80,7 +80,7 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    
 
 #RUN rm -f "${WEEWX_HOME}/weewx.conf" && \
 #    cp /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
-COPY /src/weewx.conf "${WEEWX_HOME}/weewx2.conf"
+COPY /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
