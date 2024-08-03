@@ -73,12 +73,17 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
 
 COPY src/skin.conf ./skins/weewx-wdc/
 
-RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
+
+
+RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 192.168.50.163/g' weewx.conf &&\
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
+    sed -i -z -e 's/debug = 0/debug = 2/g' weewx.conf &&\     
+    sed -i -z -e 's/week_start = 6/week_start = 0/g' weewx.conf &&\ 
     cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
 
 
+RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://192.168.50.163:1883\n        topic = weather2\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[rain]]]]\n                name = dayRain_mm\n                units = mm\n            [[[[rainRate]]]]\n                name = rainRate_mm_per_hour\n                units = mm_per_hour|g' weewx.conf    
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
