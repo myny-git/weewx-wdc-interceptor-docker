@@ -5,7 +5,7 @@ services:
     container_name: weewx_bresser
     build: .
     ports:
-      - 9877:9877
+      - 3010:9877
     volumes:
       - weewx-db:/home/weewx-data/archive
       - weewx-html:/home/weewx-data/public_html
