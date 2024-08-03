@@ -11,6 +11,7 @@ EXPOSE 9877
 
 COPY src/start.sh /start.sh
 COPY src/extensions.py /tmp
+COPY src/weewx.conf /tmp
 RUN chmod +x /start.sh
 
 # @see https://blog.nuvotex.de/running-syslog-in-a-container/
@@ -77,6 +78,9 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
     cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
+
+RUN rm -f "${WEEWX_HOME}/weewx.conf" && \
+    cp /tmp/weewx.conf "${WEEWX_HOME}/weewx.conf"
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
