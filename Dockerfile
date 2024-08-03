@@ -48,7 +48,7 @@ RUN python3 -m venv ${WEEWX_HOME}/weewx-venv &&\
 RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl station create "${WEEWX_HOME}" --no-prompt \
         --driver=weewx.drivers.simulator \
-        --altitude="250,meter" \
+        --altitude="41,meter" \
         --latitude=51.209 \
         --longitude=14.085 \
         --location="Haselbachtal, Saxony, Germany" \
@@ -69,7 +69,7 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
 
 COPY src/skin.conf ./skins/weewx-wdc/
 
-RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
+RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 192.168.50.163/g' weewx.conf &&\
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
     cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
