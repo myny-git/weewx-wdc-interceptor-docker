@@ -2,17 +2,19 @@ version: "3.7"
 
 services:
   weewx-python:
+    container_name: weewx_bresser
     build: .
     ports:
-      - 9877:9877
+      - 3010:9877
     volumes:
       - weewx-db:/home/weewx-data/archive
       - weewx-html:/home/weewx-data/public_html
     restart: unless-stopped
   weewx-web:
+    container_name: weewx_bresser_web
     image: nginx:latest
     ports:
-      - 8080:80
+      - 8004:80
     volumes:
       - weewx-html:/usr/share/nginx/html
 
