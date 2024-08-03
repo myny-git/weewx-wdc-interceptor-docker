@@ -16,7 +16,7 @@ RUN chmod +x /start.sh
 # @see https://blog.nuvotex.de/running-syslog-in-a-container/
 # @todo https://www.weewx.com/docs/5.0/usersguide/monitoring/#logging-on-macos
 RUN apt-get update &&\
-    apt-get install -q -y --no-install-recommends rsyslog=8.1901.0-1+deb10u2 python3-pip=18.1-5 python3-venv=3.7.3-1 &&\
+    apt-get install -q -y --no-install-recommends rsyslog=8.1901.0-1+deb10u2 python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/*
 
@@ -31,6 +31,7 @@ WORKDIR /tmp
 RUN wget -nv -O "weewx-interceptor.zip" "https://github.com/matthewwall/weewx-interceptor/archive/master.zip" &&\
     wget -nv -O "weewx-wdc-${WDC_VERSION}.zip" "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip" &&\
     wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/archive/refs/heads/master.zip" &&\
+    wget -nv -O "weewx-mqtt.zip" "https://github.com/matthewwall/weewx-mqtt/archive/master.zip" &&\            
     wget -nv -O "weewx-cmon.zip" "https://github.com/bellrichm/weewx-cmon/archive/refs/heads/master.zip" &&\
     wget -nv -O "weewx-xaggs.zip" "https://github.com/tkeffer/weewx-xaggs/archive/master.zip" &&\
     wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v0.1.0/xcum-0.1.0.tar.gz" &&\
@@ -43,12 +44,12 @@ WORKDIR ${WEEWX_HOME}
 
 RUN python3 -m venv ${WEEWX_HOME}/weewx-venv &&\
     . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
-    python3 -m pip install --no-cache-dir weewx==${WEEWX_VERSION}
+    python3 -m pip install --no-cache-dir paho-mqtt==1.6.1 weewx==${WEEWX_VERSION}
 
 RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl station create "${WEEWX_HOME}" --no-prompt \
         --driver=weewx.drivers.simulator \
-        --altitude="250,meter" \
+        --altitude="41,meter" \
         --latitude=51.209 \
         --longitude=14.085 \
         --location="Haselbachtal, Saxony, Germany" \
@@ -63,7 +64,8 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-xaggs.zip &&\
     weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-xcumulative.tar.gz &&\
     weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-GTS.zip &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-wdc/
+    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-wdc/ &&\
+    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-mqtt.zip       
 
 RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" &&\
