@@ -14,7 +14,7 @@ services:
     container_name: weewx_bresser_web
     image: nginx:latest
     ports:
-      - 8004:80
+      - 8084:80
     volumes:
       - weewx-html:/usr/share/nginx/html
 
