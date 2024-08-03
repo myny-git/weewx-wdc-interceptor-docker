@@ -71,15 +71,11 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
 
 COPY src/skin.conf ./skins/weewx-wdc/
 
-# RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
-#    sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
-#    sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
-#    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
-
-RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 192.168.50.163/g' weewx.conf &&\
+RUN sed -i -e 's/device_type = acurite-bridge/device_type = ecowitt-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
-    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py    
+    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
+
 
 #RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://user:password@host:port\n        topic = weather\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[windSpeed]]]]\n                format = %.0f\n            [[[[windGust]]]]\n                format = %.0f|g' weewx.conf
 
