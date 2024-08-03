@@ -83,7 +83,7 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port 
 
 #RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://user:password@host:port\n        topic = weather\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[windSpeed]]]]\n                format = %.0f\n            [[[[windGust]]]]\n                format = %.0f|g' weewx.conf
 
-RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://192.168.50.163:1883\n        topic = weather2\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[rain]]]]\n                name = dayRain_mm\n                units = mm\n            [[[[rainRate]]]]\n                name = rainRate_mm_per_hour\n                units = mm_per_hour|g' weewx.conf
+#RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://192.168.50.163:1883\n        topic = weather2\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[rain]]]]\n                name = dayRain_mm\n                units = mm\n            [[[[rainRate]]]]\n                name = rainRate_mm_per_hour\n                units = mm_per_hour|g' weewx.conf
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
