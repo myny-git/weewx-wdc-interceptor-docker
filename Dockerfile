@@ -80,7 +80,6 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port 
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
     sed -i -z -e 's/debug = 0/debug = 2/g' weewx.conf &&\     
-    sed -i -z -e 's/week_start = 6/week_start = 0/g' weewx.conf &&\ 
     cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py    
 
 #RUN sed -i -z -e 's|INSERT_SERVER_URL_HERE|mqtt://user:password@host:port\n        topic = weather\n        unit_system = METRIC\n        binding = loop\n        [[[inputs]]]\n            [[[[windSpeed]]]]\n                format = %.0f\n            [[[[windGust]]]]\n                format = %.0f|g' weewx.conf
