@@ -8,8 +8,8 @@ echo "WEEWX_HOME: ${WEEWX_HOME}"
 #rm -f /run/rsyslogd.pid
 # start service
 #service rsyslog start
- echo 'Starting syslog'
- /sbin/syslogd -n -S -O - &
+echo 'Starting syslog'
+/sbin/syslogd -n -S -O - &
 
 # start weewx
 echo 'Starting weewx 5.1.0'
