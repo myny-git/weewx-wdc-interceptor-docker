@@ -11,7 +11,7 @@ service rsyslog start
 
 # start weewx
 echo 'Starting weewx 5.1.0'
-
+echo "Starting Weewx version ${WEEWX_VERSION}"
 # shellcheck source=/dev/null
 . "${WEEWX_HOME}"/weewx-venv/bin/activate
 weewxd --config "${WEEWX_HOME}/weewx.conf"
