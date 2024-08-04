@@ -9,8 +9,8 @@ echo 'Starting rsyslog'
 # start service
 #service rsyslog start
 #echo 'Starting syslog'
-/sbin/syslogd -n -S -O - &
-#busybox syslogd -n -O /dev/stdout &
+#/sbin/syslogd -n -S -O - &
+busybox syslogd -n -O /dev/stdout &
 
 echo 'copy weewx.conf file'
 # Copy custom weewx.conf if it exists
