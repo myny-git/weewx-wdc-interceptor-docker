@@ -5,12 +5,12 @@ echo "WEEWX_HOME: ${WEEWX_HOME}"
 # start rsyslog
 echo 'Starting rsyslog'
 # remove lingering pid file
-#rm -f /run/rsyslogd.pid
+rm -f /run/rsyslogd.pid
 # start service
-#service rsyslog start
+service rsyslog start
 #echo 'Starting syslog'
 #/sbin/syslogd -n -S -O - &
-busybox syslogd -n -O /dev/stdout &
+#busybox syslogd -n -O /dev/stdout &
 
 echo 'copy weewx.conf file'
 # Copy custom weewx.conf if it exists
