@@ -5,9 +5,9 @@ echo "WEEWX_HOME: ${WEEWX_HOME}"
 # start rsyslog
 echo 'Starting rsyslog'
 # remove lingering pid file
-sudo rm -f /run/rsyslogd.pid
+rm -f /run/rsyslogd.pid
 # start service
-sudo service rsyslog start
+service rsyslog start
 
 # start weewx
 echo 'Starting weewx 5.1.0'
