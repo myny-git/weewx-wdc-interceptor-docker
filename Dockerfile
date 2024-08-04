@@ -17,12 +17,12 @@ RUN chmod +x /start.sh
 # @see https://blog.nuvotex.de/running-syslog-in-a-container/
 # @todo https://www.weewx.com/docs/5.0/usersguide/monitoring/#logging-on-macos
 #RUN apt-get update &&\
-#    apt-get install -q -y --no-install-recommends rsyslog=8.1901.0-1+deb10u2 python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
-#    apt-get clean &&\
+#    apt-get install -q -y --no-install-recommends  python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
+#    apt-get clean &&\    busybox-syslogd
 #    rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update &&\
-    apt-get install -q -y --no-install-recommends  busybox-syslogd python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
+    apt-get install -q -y --no-install-recommends rsyslog=8.1901.0-1+deb10u2 python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/*    
 
