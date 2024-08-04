@@ -81,7 +81,12 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port 
 
 #RUN rm -f "${WEEWX_HOME}/weewx.conf" && \
 #    cp /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
-COPY /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
+#COPY /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
+
+RUN mv "${WEEWX_HOME}/weewx.conf" "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf"
+
+# Create a directory for the custom weewx.conf
+RUN mkdir -p ${WEEWX_HOME}/data
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
