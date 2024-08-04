@@ -12,7 +12,6 @@ echo 'Starting syslog'
 /sbin/syslogd -n -S -O - &
 
 # start weewx
-echo 'Starting weewx 5.1.0'
 echo "Starting Weewx version ${WEEWX_VERSION}"
 # shellcheck source=/dev/null
 . "${WEEWX_HOME}"/weewx-venv/bin/activate
