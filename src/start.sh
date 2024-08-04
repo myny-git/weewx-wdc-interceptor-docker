@@ -3,13 +3,13 @@
 echo "WEEWX_HOME: ${WEEWX_HOME}"
 
 # start rsyslog
-#echo 'Starting rsyslog'
+echo 'Starting rsyslog'
 # remove lingering pid file
-#rm -f /run/rsyslogd.pid
+rm -f /run/rsyslogd.pid
 # start service
-#service rsyslog start
-echo 'Starting syslog'
-/sbin/syslogd -n -S -O - &
+service rsyslog start
+#echo 'Starting syslog'
+#/sbin/syslogd -n -S -O - &
 
 # start weewx
 echo "Starting Weewx version ${WEEWX_VERSION}"
