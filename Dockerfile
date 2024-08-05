@@ -89,10 +89,12 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port 
 #    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
 
 RUN mv "${WEEWX_HOME}/weewx.conf" "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf"
+RUN mv "${WEEWX_HOME}/skins/weewx-wdc/weewx.conf" "${WEEWX_HOME}/skins/weewx-wdc/skin${WDC_VERSION}.conf"
 
 # Create a directory for the custom weewx.conf
 RUN mkdir -p ${WEEWX_HOME}/data && \
-    cp weewx${WEEWX_VERSION}.conf /data 
+    cp weewx${WEEWX_VERSION}.conf /data && \
+    cp ${WEEWX_HOME}/skins/weewx-wdc/skin${WDC_VERSION}.conf /data
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
