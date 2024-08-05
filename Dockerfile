@@ -11,7 +11,7 @@ ENV WEEWX_VERSION=${WEEWX_VERSION}
 EXPOSE 9877
 
 COPY src/start.sh /start.sh
-COPY src/extensions.py /tmp
+# COPY src/extensions.py /tmp
 RUN chmod +x /start.sh
 
 # @see https://blog.nuvotex.de/running-syslog-in-a-container/
@@ -86,10 +86,6 @@ RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port 
     sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf
 
 #    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
-
-#RUN rm -f "${WEEWX_HOME}/weewx.conf" && \
-#    cp /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
-#COPY /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
 
 RUN mv "${WEEWX_HOME}/weewx.conf" "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf"
 
