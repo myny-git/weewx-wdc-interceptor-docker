@@ -19,7 +19,7 @@ if [ -f "${WEEWX_HOME}/data/weewx.conf" ]; then
     cp "${WEEWX_HOME}/data/weewx.conf" "${WEEWX_HOME}/weewx.conf"
     cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
 else
-    echo "Custom weewx.conf not found, please create one from weewx${WEEWX_VERSION}.conf "
+    echo "Custom weewx.conf not found, please create one from weewx${WEEWX_VERSION}.conf and restart the container. "
     cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
 fi
 
