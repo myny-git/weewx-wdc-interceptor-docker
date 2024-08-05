@@ -18,6 +18,8 @@ if [ -f "${WEEWX_HOME}/data/weewx.conf" ]; then
     echo "Using custom weewx.conf"
     cp "${WEEWX_HOME}/data/weewx.conf" "${WEEWX_HOME}/weewx.conf"
     cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
+    echo "Copying also skin.conf to the right folder"
+    cp "${WEEWX_HOME}/data/skin.conf" "${WEEWX_HOME}/skins/weewx-wdc/skin.conf"
 else
     echo "Custom weewx.conf not found, please create one from weewx${WEEWX_VERSION}.conf and restart the container. "
     cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
