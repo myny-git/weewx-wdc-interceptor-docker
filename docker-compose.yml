@@ -9,7 +9,7 @@ services:
     volumes:
       - weewx-db:/home/weewx-data/archive
       - weewx-html:/home/weewx-data/public_html
-      - /volume1/docker/weewx/weewx-data/weewx.conf:/home/weewx-data/data/weewx.conf
+      - /volume1/docker/weewx/weewx-data:/home/weewx-data/data
     restart: unless-stopped
   weewx-web:
     container_name: weewx_bresser_web
