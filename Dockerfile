@@ -83,8 +83,9 @@ COPY src/skin.conf ./skins/weewx-wdc/
 
 RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
-    sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf &&\
-    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
+    sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf
+
+#    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
 
 #RUN rm -f "${WEEWX_HOME}/weewx.conf" && \
 #    cp /src/weewx.conf "${WEEWX_HOME}/weewx.conf"
