@@ -20,9 +20,6 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
-    - name: Get short SHA
-      id: vars
-      run: echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
@@ -30,5 +27,20 @@ jobs:
         context: .
         push: true
         tags: |
-          mynygit/weewxv5_docker:${{ env.GITHUB_SHA_SHORT }}
-          mynygit/weewxv5_docker:latest
+          mynygit/weewxv5_docker:5.1.0
+    
+    - name: Add release notes to Docker Hub
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+        DOCKERHUB_REPO: "mynygit/weewxv5_docker"
+        DOCKERHUB_TAG: "5.1.0"
+        RELEASE_NOTES: |
+          This build includes the following updates and changes:
+          - weewx 5.1.0
+          - WDC 3.5.1          
+      run: |
+        curl -X PATCH "https://hub.docker.com/v2/repositories/${DOCKERHUB_REPO}/tags/${DOCKERHUB_TAG}/" \
+        -H "Content-Type: application/json" \
+        -u "${DOCKERHUB_USERNAME}:${DOCKERHUB_ACCESS_TOKEN}" \
+        -d "{\"full_description\": \"${RELEASE_NOTES}\"}"          
