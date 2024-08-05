@@ -95,7 +95,7 @@ RUN mv "${WEEWX_HOME}/weewx.conf" "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf"
 
 # Create a directory for the custom weewx.conf
 RUN mkdir -p ${WEEWX_HOME}/data && \
-    cp weewx.conf /data 
+    cp weewx${WEEWX_VERSION}.conf /data 
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
