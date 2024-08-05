@@ -18,9 +18,8 @@ if [ -f "${WEEWX_HOME}/data/weewx.conf" ]; then
     echo "Using custom weewx.conf"
     cp "${WEEWX_HOME}/data/weewx.conf" "${WEEWX_HOME}/weewx.conf"
 else
-    echo "Custom weewx.conf not found, using default"
-    cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/weewx.conf"
-    cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/weewx.conf"
+    echo "Custom weewx.conf not found, please create one from weewx${WEEWX_VERSION}.conf "
+    cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
 fi
 
 # start weewx
