@@ -41,7 +41,7 @@ volumes:
   weewx-html:
 ```
 
-Then, for the interceptor driver inweewx.conf:
+Then, for the interceptor driver in weewx.conf:
 
 ```
 [Interceptor]
@@ -53,117 +53,8 @@ Then, for the interceptor driver inweewx.conf:
     mode = listen
     address = 0.0.0.0
     port = 3010
-Kris_bresser's profile photo
-Kris_bresser
-Jul 31, 2024, 10:49:09 AM (5 days ago) 
-to weewx-user
-Hi all
-
-I am enjoying a lot my Bresser Wifi Pro 5in1 weather station and I am pushing the data into my home assistant via the WeeWX docker. I first explain a bit how I did it, as it may help users with similar hardware, but at the end, I do have a question.
-
-These are the things I did to get it working:
-
-My weather station unfortunately did not allow for a direct connection to a home server, but it does allow for an upload to Wunderground. I created an account, and filled out the details and from then onwards, my station is sending data to Wunderground. But, I still wanted to capture the traffic for using in my home assistant. That's why in my ASUS router with Merlin firmware, I created some IP-tables to redirect the traffic to Wunderground to my WeeWx server:
- iptables -t nat -A PREROUTING -s bresserIP -p tcp --dport 80 -j DNAT --to-destination weewx-serverIP:3010 
-iptables -t nat -A POSTROUTING -j MASQUERADE  
-
-Now all packets will be redirected to port 3010.
-
-Then I installed a docker container on my synology via docker-compose. The docker is from felddy, weewx. This combines MQTT,  weewx and the interceptor, as I am redirecting traffic.
---------------------------
-version: "3.8"
-services:
-  weewx:
-    container_name: weewx_bresser
-    image: felddy/weewx
-    init: true
-    restart: "always"
-    privileged: true
-    network_mode: host    
-    ports:
-       - 8102:80
-    volumes:
-       - /volume1/docker/weewx/:/data
-      - /volume1/docker/weewx/html/:/home/weewx/public_html/
-    environment:
-      - timezone=Europe/Brussels
-      - WEEWX_UID=weewx
-      - WEEWX_GID=dialout
--------------------
-This docker requires in my data folder of course the configuration file. At first install, this file is created, then, you can fill it out. I copy here the most important parts of my weewx.conf.
-
-##############################################################################
-
-# This section is for general configuration information.
-
-# Set to 1 for extra debug info, otherwise comment it out or set to zero
-debug = 2
-
-# Root directory of the weewx data file hierarchy for this station
-WEEWX_ROOT = /home/weewx
-
-# Whether to log successful operations. May get overridden below.
-log_success = True
-
-# Whether to log unsuccessful operations. May get overridden below.
-log_failure = True
-
-# Do not modify this. It is used when installing and updating weewx.
-version = 4.10.2
-
-##############################################################################
-#   This section is for information about the station.
-
-[Station]
-   
-    # Description of the station location
-    location = "Thuis"
-   
-    # Latitude in decimal degrees. Negative for southern hemisphere
-    latitude = fill_in_your_latitude
-    # Longitude in decimal degrees. Negative for western hemisphere.
-    longitude = fill_in_your_longitude
-   
-    # Altitude of the station, with the unit it is in. This is used only
-    # if the hardware cannot supply a value.
-    altitude = 41, meter    # Choose 'foot' or 'meter' for unit
-   
-    # Set to type of station hardware. There must be a corresponding stanza
-    # in this file, which includes a value for the 'driver' option.
-    station_type = Interceptor
-  
-
-
-    # If you have a website, you may specify an URL. This is required if you
-    # intend to register your station.
-    #station_url = http://www.example.com
-   
-    # The start of the rain year (1=January; 10=October, etc.). This is
-    # downloaded from the station if the hardware supports it.
-    rain_year_start = 1
-   
-    # Start of week (0=Monday, 6=Sunday)
-    week_start = 0
-
-##############################################################################
-
-[Interceptor]
-    # This section is for the network traffic interceptor driver.
-
-    # The driver to use:
-    driver = user.interceptor
-    device_type = wu-client   #### this is used for all undefined clients which just upload to Wunderground.
-    mode = listen
-    address = my_weewx_server_ip_address
-    port = 3010
-##################################################
-#   This section is for uploading data to Internet sites
 
 [StdRESTful]
-   
-    # Uncomment and change to override logging for uploading services.
-    # log_success = True
-    # log_failure = True
     [[Wunderground]]
         # This section is for configuring posts to the Weather Underground.
        
@@ -193,7 +84,7 @@ version = 4.10.2
 
 ```
 
-# weewx-wdc-interceptor-docker - ORIGINAL TEXT, not being used for me.
+# weewx-wdc-interceptor-docker - ORIGINAL AUTHOR.
 
 A simple Dockerfile to run [weewx](https://github.com/weewx/weewx) with the [interceptor](https://github.com/matthewwall/weewx-interceptor) driver.
 The [weewx-forecast](https://github.com/chaunceygardiner/weewx-forecast/) extension is also installed along with
