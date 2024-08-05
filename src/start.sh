@@ -12,14 +12,19 @@ echo 'Starting rsyslog'
 #/sbin/syslogd -n -S -O - &
 busybox syslogd -n -O /dev/stdout &
 
+cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
+cp "${WEEWX_HOME}/skin${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
+
 echo 'copy weewx.conf file'
 # Copy custom weewx.conf if it exists
 if [ -f "${WEEWX_HOME}/data/weewx.conf" ]; then
     echo "Using custom weewx.conf"
-    cp "${WEEWX_HOME}/data/weewx.conf" "${WEEWX_HOME}/weewx.conf"
-    cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
-    echo "Copying also skin.conf to the right folder"
-    cp "${WEEWX_HOME}/data/skin.conf" "${WEEWX_HOME}/skins/weewx-wdc/skin.conf"
+    if [ -f "${WEEWX_HOME}/data/skin.conf" ]; then
+        echo "Using custom skin.conf"
+        cp "${WEEWX_HOME}/data/weewx.conf" "${WEEWX_HOME}/weewx.conf"
+        cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
+        cp "${WEEWX_HOME}/data/skin.conf" "${WEEWX_HOME}/skins/weewx-wdc/skin.conf"
+        
 else
     echo "Custom weewx.conf not found, please create one from weewx${WEEWX_VERSION}.conf and restart the container. "
     cp "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf" "${WEEWX_HOME}/data/"
