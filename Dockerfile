@@ -79,7 +79,7 @@ RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" &&\
     weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt
 
-COPY src/skin.conf ./skins/weewx-wdc/
+# COPY src/skin.conf ./skins/weewx-wdc/
 
 RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
     sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
