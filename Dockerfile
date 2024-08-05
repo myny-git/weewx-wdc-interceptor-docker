@@ -3,7 +3,7 @@ FROM python:3.10-buster
 LABEL org.opencontainers.image.authors="David Baetge <david.baetge@gmail.com>"
 
 ARG WEEWX_VERSION="5.1.0"
-ARG WDC_VERSION="v3.5.0"
+ARG WDC_VERSION="v3.5.1"
 ARG WEEWX_UID=2749
 ENV WEEWX_HOME="/home/weewx-data"
 ENV WEEWX_VERSION=${WEEWX_VERSION}
