@@ -1,4 +1,6 @@
 [![Test & Lint](https://github.com/Daveiano/weewx-wdc-interceptor-docker/actions/workflows/test.yml/badge.svg)](https://github.com/Daveiano/weewx-wdc-interceptor-docker/actions/workflows/test.yml)
+# weewx-wdc-interceptor-docker
+This is my own dockerfile, forked from Daveiano! Many thanks to him, as now, I am running version 5.1.0 on my synology NAS.
 
 # weewx-wdc-interceptor-docker
 
