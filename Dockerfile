@@ -4,6 +4,8 @@ LABEL org.opencontainers.image.authors="David Baetge <david.baetge@gmail.com>"
 
 ARG WEEWX_VERSION="5.1.0"
 ARG WDC_VERSION="v3.5.1"
+ARG WEEWX_FORECAST_VERSION="3.5"
+ARG WEEWX_XCUM_VERSION="0.1.0"
 ARG WEEWX_UID=2749
 ENV WEEWX_HOME="/home/weewx-data"
 ENV WEEWX_VERSION=${WEEWX_VERSION}
@@ -36,13 +38,15 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Brussels /etc/localtime
 WORKDIR /tmp
 
  # wget -nv -O "weewx-cmon.zip" "https://github.com/bellrichm/weewx-cmon/archive/refs/heads/master.zip" &&\
-
+ # wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/archive/refs/heads/master.zip" &&\
+ # wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v0.1.0/xcum-0.1.0.tar.gz" &&\
+ 
 RUN wget -nv -O "weewx-interceptor.zip" "https://github.com/matthewwall/weewx-interceptor/archive/master.zip" &&\
     wget -nv -O "weewx-wdc-${WDC_VERSION}.zip" "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip" &&\
-    wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/archive/refs/heads/master.zip" &&\
+    wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast-${WEEWX_FORECAST_VERSION}.zip" &&\ 
     wget -nv -O "weewx-mqtt.zip" "https://github.com/matthewwall/weewx-mqtt/archive/master.zip" &&\            
     wget -nv -O "weewx-xaggs.zip" "https://github.com/tkeffer/weewx-xaggs/archive/master.zip" &&\
-    wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v0.1.0/xcum-0.1.0.tar.gz" &&\
+    wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v${WEEWX_XCUM_VERSION}/xcum-${WEEWX_XCUM_VERSION}.tar.gz" &&\
     wget -nv -O "weewx-GTS.zip" "https://github.com/roe-dl/weewx-GTS/archive/master.zip"
 
 RUN mkdir /tmp/weewx-wdc/ &&\
