@@ -1,12 +1,7 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches:
-      - main  # Modify as per your branch
-  pull_request:
-    branches:
-      - main  # Modify as per your branch
+  [push, pull_request]
 
 jobs:
   build-and-push:
