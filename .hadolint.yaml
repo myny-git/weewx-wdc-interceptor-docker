@@ -1,5 +1,6 @@
 ignored:
   - SC1091   # Non-interactive shell sourcing (virtualenv activate)
+  - DL3003   # WORKDIR not practical for complex find/exec operations
   - DL3008   # Pin versions not strictly needed for small base image
   - DL3013   # Using pip without requirements.txt is intentional
   - DL3015   # --no-install-recommends already minimizes

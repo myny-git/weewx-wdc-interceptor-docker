@@ -52,11 +52,12 @@ RUN set -eux; \
     unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc; \
     mkdir /tmp/interceptor-src; \
     unzip -q /tmp/weewx-interceptor-src.zip -d /tmp/interceptor-src; \
-    cd /tmp/interceptor-src/weewx-interceptor-*; \
-    zip -r /tmp/weewx-interceptor.zip .; \
-    cd /tmp; \
     mkdir -p /opt/weewx-ext; \
-    mv /tmp/weewx-interceptor.zip /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
+    mv /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
+
+# Repackage interceptor extension properly
+WORKDIR /tmp/interceptor-src
+RUN find . -name "weewx-interceptor-*" -type d -exec sh -c 'cd "$1" && zip -r /opt/weewx-ext/weewx-interceptor.zip .' _ {} \;
 
 WORKDIR ${WEEWX_HOME}
 
