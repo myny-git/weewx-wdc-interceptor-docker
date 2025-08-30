@@ -55,14 +55,22 @@ if [ ! -f "${CONFIG_PATH}" ]; then
 
     # Install extensions
     echo "[INFO] Installing extensions"
+    echo "[DEBUG] Available extension files:"
+    ls -la /opt/weewx-ext/ || true
     for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip; do
+        if [ ! -e "${pkg}" ]; then
+            echo "[ERROR] Extension file not found: ${pkg}"
+            continue
+        fi
         echo "[DEBUG] Installing extension: ${pkg}"
         if [ "${pkg}" = "/opt/weewx-ext/weewx-interceptor.zip" ]; then
             echo "[DEBUG] Interceptor zip contents:"
-            unzip -l "${pkg}" || true
+            unzip -l "${pkg}" || echo "[ERROR] Failed to list interceptor zip contents"
         fi
+        echo "[DEBUG] Running: weectl extension install -y --config ${WEEWX_HOME}/weewx.conf ${pkg}"
         weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}" || echo "[WARN] Failed to install ${pkg}"
     done
+    echo "[DEBUG] Installed extensions:"
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" || true
 
     # Verify interceptor module exists
