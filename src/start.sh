@@ -145,15 +145,13 @@ else
 
     # If user extensions vanished (e.g. because /home/weewx-data/bin was not persisted), reinstall needed ones
     if [ ! -f "${WEEWX_HOME}/bin/user/interceptor.py" ]; then
-        echo "[WARN] Interceptor module missing on restart - reinstalling extensions"
-        for pkg in /opt/weewx-ext/weewx-interceptor.zip; do
-            if [ -f "${pkg}" ]; then
-                echo "[INFO] Reinstalling ${pkg}"
-                weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}" || echo "[ERROR] Failed reinstall ${pkg}"
-            else
-                echo "[ERROR] Expected extension archive not found: ${pkg}" >&2
-            fi
-        done
+        echo "[WARN] Interceptor module missing on restart - reinstalling interceptor extension"
+        if [ -f /opt/weewx-ext/weewx-interceptor.zip ]; then
+            echo "[INFO] Reinstalling /opt/weewx-ext/weewx-interceptor.zip"
+            weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /opt/weewx-ext/weewx-interceptor.zip || echo "[ERROR] Failed reinstall interceptor"
+        else
+            echo "[ERROR] Expected extension archive not found: /opt/weewx-ext/weewx-interceptor.zip" >&2
+        fi
         # (Optional) reinstall mqtt etc if their modules also missing
         for pair in mqtt:mqtt.py forecast:forecast.py xaggs:xaggs.py GTS:GTS.py; do
             name="${pair%%:*}"; file="${pair##*:}";
@@ -171,6 +169,10 @@ else
 fi
 
 echo "[INFO] Launching WeeWX ${WEEWX_VERSION}"
+echo "[DEBUG] PYTHONPATH before launch: ${PYTHONPATH:-<empty>}"
+if [ "${DEBUG:-0}" = "1" ]; then
+  echo "[DEBUG] Enabling shell trace (DEBUG=1)"; set -x
+fi
 echo "[DEBUG] Final check - interceptor module:"; ls -la "${WEEWX_HOME}/bin/user/interceptor.py" 2>/dev/null || echo "Not found"
 echo "[DEBUG] Final check - station config:"; grep -A5 -B5 "station_type\|driver.*=" "${WEEWX_HOME}/weewx.conf" | head -15 || true
 exec weewxd --config "${WEEWX_HOME}/weewx.conf"
