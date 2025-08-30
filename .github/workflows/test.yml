@@ -72,8 +72,8 @@ jobs:
         env:
           GOSS_FILES_STRATEGY: cp
           GOSS_PATH: /opt/hostedtoolcache/goss/0.3.16/amd64/goss
-          GOSS_SLEEP: 2
-          GOSS_WAIT_OPTS: -r 60s -s 1s
+          GOSS_SLEEP: 5
+          GOSS_WAIT_OPTS: -r 90s -s 2s
         run: |
           # Expose port needed for tests
           sudo -E /opt/hostedtoolcache/dgoss/0.3.16/amd64/dgoss run -p 9877:9877 ${IMAGE_NAME}

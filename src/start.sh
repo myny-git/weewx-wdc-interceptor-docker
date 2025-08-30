@@ -73,6 +73,12 @@ if [ ! -f "${CONFIG_PATH}" ]; then
         echo "[INFO] Reconfiguring station to use user.interceptor"
         weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt || true
 
+        # Verify station_type is set correctly in [Station] section
+        if ! grep -q "station_type.*=.*Interceptor" "${WEEWX_HOME}/weewx.conf"; then
+            echo "[INFO] Manually setting station_type to Interceptor"
+            sed -i '/^\[Station\]/,/^\[/ { /station_type[[:space:]]*=/ { s/station_type[[:space:]]*=.*/station_type = Interceptor/; } }' "${WEEWX_HOME}/weewx.conf" || true
+        fi
+
     # Ensure single canonical [Interceptor] section
     echo "[INFO] Normalizing Interceptor section"
     tmpcfg="${WEEWX_HOME}/weewx.conf.tmp"
@@ -95,6 +101,7 @@ EOF
     # Save user-editable copies
     cp "${WEEWX_HOME}/weewx.conf" "${CONFIG_PATH}"
     echo "[DEBUG] Persisted config (Interceptor section):"; awk '/^\[Interceptor\]/{flag=1;next} /^\[/{flag=0} flag' "${CONFIG_PATH}" || true
+    echo "[DEBUG] Station driver in config:"; grep -A1 -B1 "station_type\|driver.*=" "${CONFIG_PATH}" | head -10 || true
     if [ -f "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" ]; then
         cp "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" "${SKIN_PATH}" || true
     fi
@@ -107,5 +114,7 @@ else
 fi
 
 echo "[INFO] Launching WeeWX ${WEEWX_VERSION}"
+echo "[DEBUG] Final check - interceptor module:"; ls -la "${WEEWX_HOME}/bin/user/interceptor.py" 2>/dev/null || echo "Not found"
+echo "[DEBUG] Final check - station config:"; grep -A5 -B5 "station_type\|driver.*=" "${WEEWX_HOME}/weewx.conf" | head -15 || true
 exec weewxd --config "${WEEWX_HOME}/weewx.conf"
 
