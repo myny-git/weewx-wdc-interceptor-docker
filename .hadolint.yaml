@@ -6,5 +6,6 @@ ignored:
   - DL3015   # --no-install-recommends already minimizes
   - DL3042   # Cleanup handled manually
   - DL3059   # Multiple RUNs acceptable for readability
+  - DL4006   # pipefail handled by set -eux
 
 failure-threshold: warning
