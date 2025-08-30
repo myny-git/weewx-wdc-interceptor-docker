@@ -68,9 +68,13 @@ EOF
         else
             # Insert / update key lines
             sed -i -E 's/^([[:space:]]*device_type[[:space:]]*=).*/\1 wu-client/' "${WEEWX_HOME}/weewx.conf" || true
-            if ! grep -q '^\s*port\s*=\s*9877' "${WEEWX_HOME}/weewx.conf"; then
-                sed -i '/^\[Interceptor\]/,/^\[/ {/^\[Interceptor\]/! {/driver = user.interceptor/a \    port = 9877\n    address = 0.0.0.0}' "${WEEWX_HOME}/weewx.conf" || true
-            fi
+                # Guarantee address and port lines exist (idempotent)
+                if ! awk '/^\[Interceptor\]/{f=1;next} /^\[/{f=0} f && /port = 9877/{found=1} END{exit(found?0:1)}' "${WEEWX_HOME}/weewx.conf"; then
+                    sed -i '/^\[Interceptor\]/,/^\[/ {/driver = user.interceptor/!{/mode = listen/a \    port = 9877}' "${WEEWX_HOME}/weewx.conf" || true
+                fi
+                if ! awk '/^\[Interceptor\]/{f=1;next} /^\[/{f=0} f && /address = 0.0.0.0/{found=1} END{exit(found?0:1)}' "${WEEWX_HOME}/weewx.conf"; then
+                    sed -i '/^\[Interceptor\]/,/^\[/ {/driver = user.interceptor/!{/mode = listen/a \    address = 0.0.0.0}' "${WEEWX_HOME}/weewx.conf" || true
+                fi
         fi
 
         # Basic skin tweaks
@@ -79,6 +83,7 @@ EOF
 
     # Save user-editable copies
     cp "${WEEWX_HOME}/weewx.conf" "${CONFIG_PATH}"
+    echo "[DEBUG] Persisted config (excerpt):"; grep -E '^(\[Interceptor\]|device_type|port = 9877|address = 0.0.0.0)' "${CONFIG_PATH}" || true
     if [ -f "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" ]; then
         cp "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" "${SKIN_PATH}" || true
     fi

@@ -17,8 +17,6 @@ process:
 port:
   tcp:9877:
     listening: true
-    ip:
-      - 0.0.0.0
 
 file:
   /home/weewx-data/data/weewx.conf:
@@ -28,3 +26,5 @@ file:
       - /device_type = wu-client/
       - /port = 9877/
       - /address = 0.0.0.0/
+
+          # This section is for the network traffic interceptor driver.
