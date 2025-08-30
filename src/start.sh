@@ -55,10 +55,10 @@ if [ ! -f "${CONFIG_PATH}" ]; then
         echo "[INFO] Reconfiguring station to use user.interceptor"
         weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt || true
 
-        # Ensure [Interceptor] section with expected settings
-    # Normalize existing Interceptor section by removing it, then append clean block
+    # Ensure single canonical [Interceptor] section
+    echo "[INFO] Normalizing Interceptor section"
     tmpcfg="${WEEWX_HOME}/weewx.conf.tmp"
-    awk 'BEGIN{skip=0} /^\[Interceptor\]/{skip=1} skip && /^\[/{skip=0} !skip' "${WEEWX_HOME}/weewx.conf" > "${tmpcfg}" || cp "${WEEWX_HOME}/weewx.conf" "${tmpcfg}"
+    awk '/^\[Interceptor\]/{in_int=1;next} /^\[/{if(in_int){in_int=0}} !in_int' "${WEEWX_HOME}/weewx.conf" > "${tmpcfg}" || cp "${WEEWX_HOME}/weewx.conf" "${tmpcfg}"
     cat >> "${tmpcfg}" <<'EOF'
 [Interceptor]
 driver = user.interceptor
@@ -68,6 +68,7 @@ address = 0.0.0.0
 port = 9877
 EOF
     mv "${tmpcfg}" "${WEEWX_HOME}/weewx.conf"
+    echo "[DEBUG] Interceptor section count after normalize: $(grep -c '^\[Interceptor\]' "${WEEWX_HOME}/weewx.conf" || true)"
 
         # Basic skin tweaks
         sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/' "${WEEWX_HOME}/weewx.conf" || true
