@@ -29,7 +29,7 @@ RUN chmod +x /start.sh
 
 # Base OS deps
 RUN apt-get update \
- && apt-get install -y --no-install-recommends busybox-syslogd wget unzip ca-certificates tzdata \
+ && apt-get install -y --no-install-recommends busybox-syslogd wget unzip zip ca-certificates tzdata \
  && rm -rf /var/lib/apt/lists/*
 
 # Create user
