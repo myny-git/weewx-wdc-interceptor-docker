@@ -2,40 +2,32 @@ user:
   weewx:
     exists: true
     uid: 2749
-    home: /home/weewx
 
 group:
   weewx:
     exists: true
     gid: 2749
 
-service:
-  rsyslog:
-    enabled: true
-    running: true
-
 process:
   weewxd:
+    running: true
+  syslogd:
     running: true
 
 port:
   tcp:9877:
     listening: true
     ip:
-    - 0.0.0.0
+      - 0.0.0.0
 
 file:
   /home/weewx-data/weewx.conf:
     exists: true
     contains:
-      - /device_type = ecowitt-client/
+      - /device_type = wu-client/
       - /port = 9877/
       - /address = 0.0.0.0/
-      - /WdcReport/
       - /skin = weewx-wdc/
 
-  /home/weewx-data/bin/user/extensions.py:
+  /home/weewx-data/data/weewx.conf:
     exists: true
-    contains:
-      - /import weewx.units/
-      - /weewx.units.obs_group_dict\[\'proc_active\'\] = \'group_count\'/

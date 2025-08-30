@@ -1,106 +1,74 @@
-FROM python:3.10-buster
-
-LABEL org.opencontainers.image.authors="David Baetge <david.baetge@gmail.com>"
+FROM python:3.11-slim-bookworm
 
 ARG WEEWX_VERSION="5.1.0"
 ARG WDC_VERSION="v3.5.1"
 ARG WEEWX_FORECAST_VERSION="3.5"
-ARG WEEWX_XCUM_VERSION="0.1.0"
+ARG INTERCEPTOR_VERSION="v1.0.0"
+ARG INTERCEPTOR_REPO="tfilo/weewx-interceptor"
 ARG WEEWX_UID=2749
-ENV WEEWX_HOME="/home/weewx-data"
-ENV WEEWX_VERSION=${WEEWX_VERSION}
-ENV WDC_VERSION=${WDC_VERSION}
+
+# Metadata labels (OCI)
+LABEL org.opencontainers.image.title="WeeWX with WDC + Interceptor" \
+    org.opencontainers.image.description="Containerized WeeWX ${WEEWX_VERSION} incl. WDC ${WDC_VERSION}, Interceptor ${INTERCEPTOR_VERSION}, Forecast, MQTT, XAggs, GTS" \
+    org.opencontainers.image.authors="David Baetge <david.baetge@gmail.com>, Kris Myny" \
+    org.opencontainers.image.source="https://github.com/myny-git/weewx-wdc-interceptor-docker" \
+    org.opencontainers.image.documentation="https://github.com/${INTERCEPTOR_REPO}/releases/tag/${INTERCEPTOR_VERSION}" \
+    org.opencontainers.image.licenses="GPL-3.0-or-later"
+ARG PAHO_MQTT_VERSION="1.6.1"
+
+ENV WEEWX_HOME="/home/weewx-data" \
+    WEEWX_VERSION=${WEEWX_VERSION} \
+    WDC_VERSION=${WDC_VERSION} \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 EXPOSE 9877
 
 COPY src/start.sh /start.sh
-# COPY src/extensions.py /tmp
 RUN chmod +x /start.sh
 
-# @see https://blog.nuvotex.de/running-syslog-in-a-container/
-# @todo https://www.weewx.com/docs/5.0/usersguide/monitoring/#logging-on-macos
-#RUN apt-get update &&\
-#    apt-get install -q -y --no-install-recommends rsyslog=8.1901.0-1+deb10u2 python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
-#    apt-get clean &&\    
-#    rm -rf /var/lib/apt/lists/*
+# Base OS deps
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends busybox-syslogd wget unzip ca-certificates tzdata \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update &&\
-    apt-get install -q -y --no-install-recommends busybox-syslogd python3-pip=18.1-5 python3-venv=3.7.3-1 python3-paho-mqtt=1.4.0-1 &&\
-    apt-get clean &&\
-    rm -rf /var/lib/apt/lists/*    
+# Create user
+RUN addgroup --system --gid ${WEEWX_UID} weewx \
+ && adduser --system --uid ${WEEWX_UID} --ingroup weewx weewx
 
-RUN addgroup --system --gid ${WEEWX_UID} weewx &&\
-    adduser --system --uid ${WEEWX_UID} --ingroup weewx weewx
-
-# Configure timezone.
-RUN ln -sf /usr/share/zoneinfo/Europe/Brussels /etc/localtime
+# (Optional) timezone can be mounted/overridden at runtime; default stays UTC
 
 WORKDIR /tmp
 
- # wget -nv -O "weewx-cmon.zip" "https://github.com/bellrichm/weewx-cmon/archive/refs/heads/master.zip" &&\
- # wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/archive/refs/heads/master.zip" &&\
- # wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v0.1.0/xcum-0.1.0.tar.gz" &&\
- 
-RUN wget -nv -O "weewx-interceptor.zip" "https://github.com/matthewwall/weewx-interceptor/archive/master.zip" &&\
-    wget -nv -O "weewx-wdc-${WDC_VERSION}.zip" "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip" &&\
-    wget -nv -O "weewx-forecast.zip" "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast-${WEEWX_FORECAST_VERSION}.zip" &&\ 
-    wget -nv -O "weewx-mqtt.zip" "https://github.com/matthewwall/weewx-mqtt/archive/master.zip" &&\            
-    wget -nv -O "weewx-xaggs.zip" "https://github.com/tkeffer/weewx-xaggs/archive/master.zip" &&\
-    wget -nv -O "weewx-xcumulative.tar.gz" "https://github.com/gjr80/weewx-xcumulative/releases/download/v${WEEWX_XCUM_VERSION}/xcum-${WEEWX_XCUM_VERSION}.tar.gz" &&\
-    wget -nv -O "weewx-GTS.zip" "https://github.com/roe-dl/weewx-GTS/archive/master.zip"
-
-RUN mkdir /tmp/weewx-wdc/ &&\
-    unzip /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc/
+# Download extensions (single layer)
+RUN set -eux; \
+    wget -nv -O weewx-interceptor.zip "https://github.com/${INTERCEPTOR_REPO}/archive/refs/tags/${INTERCEPTOR_VERSION}.zip"; \
+    wget -nv -O weewx-wdc-${WDC_VERSION}.zip "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip"; \
+    wget -nv -O weewx-forecast.zip "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast-${WEEWX_FORECAST_VERSION}.zip"; \
+    wget -nv -O weewx-mqtt.zip "https://github.com/matthewwall/weewx-mqtt/archive/master.zip"; \
+    wget -nv -O weewx-xaggs.zip "https://github.com/tkeffer/weewx-xaggs/archive/master.zip"; \
+    wget -nv -O weewx-GTS.zip "https://github.com/roe-dl/weewx-GTS/archive/master.zip"; \
+    mkdir /tmp/weewx-wdc; \
+    unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc
 
 WORKDIR ${WEEWX_HOME}
 
-RUN python3 -m venv ${WEEWX_HOME}/weewx-venv &&\
-    . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
-    python3 -m pip install --no-cache-dir paho-mqtt==1.6.1 weewx==${WEEWX_VERSION}
+# Virtualenv + core installs
+RUN python -m venv ${WEEWX_HOME}/weewx-venv \
+ && . ${WEEWX_HOME}/weewx-venv/bin/activate \
+ && pip install --upgrade pip \
+ && pip install --no-cache-dir "paho-mqtt==${PAHO_MQTT_VERSION}" "weewx==${WEEWX_VERSION}"
 
-RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
-    weectl station create "${WEEWX_HOME}" --no-prompt \
-        --driver=weewx.drivers.simulator \
-        --altitude="41,meter" \
-        --latitude=51.209 \
-        --longitude=14.085 \
-        --location="Haselbachtal, Saxony, Germany" \
-        --register="y" \
-        --station-url="https://www.weewx-hbt.de/" \
-        --units="metric"
+# Runtime will create station + install extensions; seed data dir only
+RUN mkdir -p ${WEEWX_HOME}/data
 
-# weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-cmon.zip &&\
-
-RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-interceptor.zip &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-forecast.zip &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-xaggs.zip &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-xcumulative.tar.gz &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-GTS.zip &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-wdc/ &&\
-    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /tmp/weewx-mqtt.zip       
-
-RUN . ${WEEWX_HOME}/weewx-venv/bin/activate &&\
-    weectl extension list --config "${WEEWX_HOME}/weewx.conf" &&\
-    weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt
-
-# COPY src/skin.conf ./skins/weewx-wdc/
-
-RUN sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 0.0.0.0/g' weewx.conf &&\
-    sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/g' weewx.conf &&\
-    sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/g' weewx.conf
-
-#    cat /tmp/extensions.py >> "${WEEWX_HOME}"/bin/user/extensions.py
-
-RUN mv "${WEEWX_HOME}/weewx.conf" "${WEEWX_HOME}/weewx${WEEWX_VERSION}.conf"
-RUN mv "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" "${WEEWX_HOME}/skins/weewx-wdc/skin${WDC_VERSION}.conf"
-
-# Create a directory for the custom weewx.conf
-RUN mkdir -p ${WEEWX_HOME}/data && \
-    cp weewx${WEEWX_VERSION}.conf /data && \
-    cp ${WEEWX_HOME}/skins/weewx-wdc/skin${WDC_VERSION}.conf /data
+# Clean up build artifacts
+RUN rm -rf /tmp/* ~/.cache/pip
 
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
+
+# Simple healthcheck: process exists
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 CMD pgrep -f weewxd >/dev/null || exit 1
 
 ENTRYPOINT [ "/start.sh" ]

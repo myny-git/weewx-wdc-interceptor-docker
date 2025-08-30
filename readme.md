@@ -1,5 +1,5 @@
 # weewx-wdc-interceptor-docker
-This is my own dockerfile, forked from Daveiano! Many thanks to him, as now, I am running the newest versions of [weewx](https://github.com/weewx/weewx) on my synology NAS. I also run the [interceptor](https://github.com/matthewwall/weewx-interceptor) driver and following extensions: [weewx-forecast](https://github.com/chaunceygardiner/weewx-forecast/) extension, [weewx-wdc](https://github.com/Daveiano/weewx-wdc), [weewx-xcumulative](https://github.com/gjr80/weewx-xcumulative), [weewx-xaggs](https://github.com/tkeffer/weewx-xaggs),
+This is my own dockerfile, forked from Daveiano! Many thanks to him, as now, I am running the newest versions of [weewx](https://github.com/weewx/weewx) on my synology NAS. I also run the [interceptor](https://github.com/tfilo/weewx-interceptor) driver and following extensions: [weewx-forecast](https://github.com/chaunceygardiner/weewx-forecast/) extension, [weewx-wdc](https://github.com/Daveiano/weewx-wdc), [weewx-xaggs](https://github.com/tkeffer/weewx-xaggs),
 [weewx-GTS](https://github.com/roe-dl/weewx-GTS).
 
 These are the things I did to get it working:

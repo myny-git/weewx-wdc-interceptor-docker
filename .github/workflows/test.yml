@@ -1,38 +1,86 @@
 name: Test & Lint
 
 on:
-  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches: [ main ]
+    paths: [ 'Dockerfile', 'src/**', 'goss.yaml', '.hadolint.yaml', '.github/workflows/test.yml' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: test-and-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: weewx-test
+  GOSS_VERSION: v0.3.16
+  PAHO_MQTT_VERSION: 1.6.1
+  INTERCEPTOR_VERSION: v1.0.0
 
 jobs:
   shellcheck:
-    name: Shellcheck
+    name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Run ShellCheck
-      uses: ludeeus/action-shellcheck@master
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+
   hadolint:
-    name: hadolint
+    name: Hadolint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v2.0.0
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
           verbose: true
+
   dgoss:
-    name: dgoss
+    name: dgoss validation
     runs-on: ubuntu-latest
+    needs: [ shellcheck, hadolint ]
     steps:
       - uses: actions/checkout@v4
-      - uses: e1himself/goss-installation-action@v1.2.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
         with:
-          version: 'v0.3.16'
-      - run: docker build . -t "weewx"
+          path: /tmp/.buildx-cache
+          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            buildx-${{ runner.os }}-
+
+      - name: Build image
+        run: |
+          docker build \
+            --build-arg PAHO_MQTT_VERSION=${PAHO_MQTT_VERSION} \
+            --build-arg INTERCEPTOR_VERSION=${INTERCEPTOR_VERSION} \
+            -t ${IMAGE_NAME} .
+
+      - name: Install goss/dgoss
+        uses: e1himself/goss-installation-action@v1.2.1
+        with:
+          version: ${{ env.GOSS_VERSION }}
+
       - name: Run dgoss tests
-        run: >
-          export GOSS_FILES_STRATEGY=cp &&
-          export GOSS_PATH="/opt/hostedtoolcache/goss/0.3.16/amd64/goss" &&
-          export GOSS_SLEEP=1.0 &&
-          sudo -E /opt/hostedtoolcache/dgoss/0.3.16/amd64/dgoss run -p 9877:9877 weewx
+        env:
+          GOSS_FILES_STRATEGY: cp
+          GOSS_PATH: /opt/hostedtoolcache/goss/0.3.16/amd64/goss
+          GOSS_SLEEP: 2
+          GOSS_WAIT_OPTS: -r 60s -s 1s
+        run: |
+          # Expose port needed for tests
+          sudo -E /opt/hostedtoolcache/dgoss/0.3.16/amd64/dgoss run -p 9877:9877 ${IMAGE_NAME}
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [ dgoss ]
+    steps:
+      - run: echo "All tests completed." 

@@ -1,0 +1,14 @@
+# Ignore everything not needed in build context
+.git
+.gitignore
+README.md
+readme.md
+LICENSE
+*.md
+*.log
+*.tgz
+*.tar
+*.zip
+*.gz
+**/__pycache__/
+**/*.pyc
