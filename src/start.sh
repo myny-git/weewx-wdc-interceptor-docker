@@ -72,7 +72,7 @@ if [ ! -f "${CONFIG_PATH}" ]; then
         # Reconfigure station to use interceptor driver
         echo "[INFO] Reconfiguring station to use user.interceptor"
         weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt || true
-
+        
         # Verify station_type is set correctly in [Station] section
         if ! grep -q "station_type.*=.*Interceptor" "${WEEWX_HOME}/weewx.conf"; then
             echo "[INFO] Manually setting station_type to Interceptor"
