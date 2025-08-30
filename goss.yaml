@@ -22,9 +22,9 @@ file:
   /home/weewx-data/data/weewx.conf:
     exists: true
     contains:
-      - /\[Interceptor\]/
-      - /device_type = wu-client/
-      - /port = 9877/
-      - /address = 0.0.0.0/
+      - /^\[Interceptor\]/
+      - /^[[:space:]]*device_type[[:space:]]*=[[:space:]]*wu-client/
+      - /^[[:space:]]*port[[:space:]]*=[[:space:]]*9877/
+      - /^[[:space:]]*address[[:space:]]*=[[:space:]]*0.0.0.0/
 
           # This section is for the network traffic interceptor driver.
