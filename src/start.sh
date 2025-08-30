@@ -48,12 +48,26 @@ if [ ! -f "${CONFIG_PATH}" ]; then
         --station-url="${STATION_URL}" \
         --units="metric"
 
+    # Ensure user module directory exists first
+    echo "[INFO] Creating user module directory structure"
+    mkdir -p "${WEEWX_HOME}/bin/user"
+    touch "${WEEWX_HOME}/bin/user/__init__.py"
+
     # Install extensions
     echo "[INFO] Installing extensions"
     for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip; do
-        weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}"
+        echo "[DEBUG] Installing extension: ${pkg}"
+        weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}" || echo "[WARN] Failed to install ${pkg}"
     done
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" || true
+
+    # Verify interceptor module exists
+    if [ -f "${WEEWX_HOME}/bin/user/interceptor.py" ]; then
+        echo "[INFO] Interceptor module found at ${WEEWX_HOME}/bin/user/interceptor.py"
+    else
+        echo "[ERROR] Interceptor module not found! Checking user directory contents:"
+        ls -la "${WEEWX_HOME}/bin/user/" || true
+    fi
 
         # Reconfigure station to use interceptor driver
         echo "[INFO] Reconfiguring station to use user.interceptor"
