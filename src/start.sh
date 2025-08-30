@@ -76,7 +76,7 @@ if [ ! -f "${CONFIG_PATH}" ]; then
         rm -rf /tmp/interceptor-check
     fi
 
-    for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip; do
+    for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip /opt/weewx-ext/weewx-xcumulative.zip; do
         if [ ! -e "${pkg}" ]; then
             echo "[ERROR] Extension file not found: ${pkg}"
             continue
@@ -156,7 +156,7 @@ else
             echo "[ERROR] Expected extension archive not found: /opt/weewx-ext/weewx-interceptor.zip" >&2
         fi
         # (Optional) reinstall mqtt etc if their modules also missing
-        for pair in mqtt:mqtt.py forecast:forecast.py xaggs:xaggs.py GTS:GTS.py; do
+        for pair in mqtt:mqtt.py forecast:forecast.py xaggs:xaggs.py GTS:GTS.py xcumulative:xcumulative.py; do
             name="${pair%%:*}"; file="${pair##*:}";
             if [ ! -f "${WEEWX_HOME}/bin/user/${file}" ]; then
                 archive="/opt/weewx-ext/weewx-${name}.zip"
@@ -176,14 +176,10 @@ else
         cp -a /opt/weewx-ext/weewx-wdc "${WEEWX_HOME}/skins/" || echo "[WARN] Failed to restore WDC skin"
     fi
 
-    # Sanitize config: remove deprecated xcumulative service lines and fix malformed booleans (Truex)
+    # Sanitize config: remove deprecated xcumulative service lines en fix malformed booleans (Truex)
     if grep -q 'Truex' "${WEEWX_HOME}/weewx.conf"; then
         echo "[INFO] Fixing malformed boolean 'Truex' -> 'True'"
         sed -i 's/Truex/True/g' "${WEEWX_HOME}/weewx.conf" || true
-    fi
-    if grep -q 'user.xcumulative' "${WEEWX_HOME}/weewx.conf"; then
-        echo "[INFO] Removing deprecated user.xcumulative service entries"
-        sed -i '/user.xcumulative/d' "${WEEWX_HOME}/weewx.conf" || true
     fi
 fi
 

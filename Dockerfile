@@ -6,6 +6,7 @@ ARG WEEWX_FORECAST_VERSION="3.5"
 ARG INTERCEPTOR_VERSION="v1.0.0"
 ARG INTERCEPTOR_REPO="tfilo/weewx-interceptor"
 ARG WEEWX_UID=2749
+ARG XCUMULATIVE_REPO="hoetzgit/weewx-xcumulative"
 
 # Metadata labels (OCI)
 LABEL org.opencontainers.image.title="WeeWX with WDC + Interceptor" \
@@ -48,10 +49,11 @@ RUN set -eux; \
     wget -nv -O weewx-mqtt.zip "https://github.com/matthewwall/weewx-mqtt/archive/master.zip"; \
     wget -nv -O weewx-xaggs.zip "https://github.com/tkeffer/weewx-xaggs/archive/master.zip"; \
     wget -nv -O weewx-GTS.zip "https://github.com/roe-dl/weewx-GTS/archive/master.zip"; \
+    wget -nv -O weewx-xcumulative.zip "https://github.com/${XCUMULATIVE_REPO}/archive/refs/heads/master.zip"; \
     mkdir /tmp/weewx-wdc; \
     unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc; \
     mkdir -p /opt/weewx-ext; \
-    mv /tmp/weewx-interceptor.zip /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
+    mv /tmp/weewx-interceptor.zip /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-xcumulative.zip /tmp/weewx-wdc /opt/weewx-ext/
 
 WORKDIR /tmp
 
