@@ -55,9 +55,16 @@ RUN set -eux; \
     mkdir -p /opt/weewx-ext; \
     mv /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
 
-# Repackage interceptor extension properly
+# Repackage interceptor extension properly from GitHub archive
 WORKDIR /tmp/interceptor-src
-RUN find . -name "weewx-interceptor-*" -type d -exec sh -c 'cd "$1" && zip -r /opt/weewx-ext/weewx-interceptor.zip .' _ {} \;
+RUN ls -la && \
+    INTERCEPTOR_DIR=$(find . -name "weewx-interceptor-*" -type d | head -1) && \
+    echo "Found interceptor directory: $INTERCEPTOR_DIR" && \
+    ls -la "$INTERCEPTOR_DIR" && \
+    cd "$INTERCEPTOR_DIR" && \
+    zip -r /opt/weewx-ext/weewx-interceptor.zip . && \
+    echo "Created interceptor zip with contents:" && \
+    unzip -l /opt/weewx-ext/weewx-interceptor.zip
 
 WORKDIR ${WEEWX_HOME}
 
