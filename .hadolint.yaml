@@ -4,5 +4,6 @@ ignored:
   - DL3013   # Using pip without requirements.txt is intentional
   - DL3015   # --no-install-recommends already minimizes
   - DL3042   # Cleanup handled manually
+  - DL3059   # Multiple RUNs acceptable for readability
 
 failure-threshold: warning

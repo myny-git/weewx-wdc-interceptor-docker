@@ -49,7 +49,9 @@ RUN set -eux; \
     wget -nv -O weewx-xaggs.zip "https://github.com/tkeffer/weewx-xaggs/archive/master.zip"; \
     wget -nv -O weewx-GTS.zip "https://github.com/roe-dl/weewx-GTS/archive/master.zip"; \
     mkdir /tmp/weewx-wdc; \
-    unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc
+    unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc; \
+    mkdir -p /opt/weewx-ext; \
+    mv /tmp/weewx-interceptor.zip /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
 
 WORKDIR ${WEEWX_HOME}
 

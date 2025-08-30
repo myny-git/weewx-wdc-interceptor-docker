@@ -46,7 +46,7 @@ if [ ! -f "${CONFIG_PATH}" ]; then
 
     # Install extensions
     echo "[INFO] Installing extensions"
-    for pkg in /tmp/weewx-interceptor.zip /tmp/weewx-forecast.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /tmp/weewx-mqtt.zip; do
+    for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip; do
         weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}"
     done
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" || true
