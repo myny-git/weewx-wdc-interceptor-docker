@@ -21,6 +21,7 @@ fi
 # Ensure data directory exists
 mkdir -p "${WEEWX_HOME}/data"
 
+# shellcheck disable=SC1091 # virtualenv activation script not present at lint time
 . "${WEEWX_HOME}/weewx-venv/bin/activate"
 
 CONFIG_PATH="${WEEWX_HOME}/data/weewx.conf"
@@ -36,8 +37,8 @@ if [ ! -f "${CONFIG_PATH}" ]; then
     weectl station create "${WEEWX_HOME}" --no-prompt \
         --driver=weewx.drivers.simulator \
         --altitude="${ALTITUDE}" \
-        --latitude=${LAT} \
-        --longitude=${LON} \
+    --latitude="${LAT}" \
+    --longitude="${LON}" \
         --location="${LOCATION}" \
         --register="n" \
         --station-url="${STATION_URL}" \
@@ -46,7 +47,7 @@ if [ ! -f "${CONFIG_PATH}" ]; then
     # Install extensions
     echo "[INFO] Installing extensions"
     for pkg in /tmp/weewx-interceptor.zip /tmp/weewx-forecast.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /tmp/weewx-mqtt.zip; do
-        weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "$pkg"
+        weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}"
     done
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" || true
 
