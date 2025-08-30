@@ -51,10 +51,31 @@ if [ ! -f "${CONFIG_PATH}" ]; then
     done
     weectl extension list --config "${WEEWX_HOME}/weewx.conf" || true
 
-    # Basic config tweaks
-    sed -i -e 's/device_type = acurite-bridge/device_type = wu-client\n    port = 9877\n    address = 0.0.0.0/' "${WEEWX_HOME}/weewx.conf" || true
-    sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/' "${WEEWX_HOME}/weewx.conf" || true
-    sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/' "${WEEWX_HOME}/weewx.conf" || true
+        # Reconfigure station to use interceptor driver
+        echo "[INFO] Reconfiguring station to use user.interceptor"
+        weectl station reconfigure --weewx-root "${WEEWX_HOME}" --config "${WEEWX_HOME}/weewx.conf" --driver=user.interceptor --no-prompt || true
+
+        # Ensure [Interceptor] section with expected settings
+        if ! grep -q '^\[Interceptor\]' "${WEEWX_HOME}/weewx.conf"; then
+            cat >> "${WEEWX_HOME}/weewx.conf" <<'EOF'
+[Interceptor]
+        driver = user.interceptor
+        device_type = wu-client
+        mode = listen
+        address = 0.0.0.0
+        port = 9877
+EOF
+        else
+            # Insert / update key lines
+            sed -i -E 's/^([[:space:]]*device_type[[:space:]]*=).*/\1 wu-client/' "${WEEWX_HOME}/weewx.conf" || true
+            if ! grep -q '^\s*port\s*=\s*9877' "${WEEWX_HOME}/weewx.conf"; then
+                sed -i '/^\[Interceptor\]/,/^\[/ {/^\[Interceptor\]/! {/driver = user.interceptor/a \    port = 9877\n    address = 0.0.0.0}' "${WEEWX_HOME}/weewx.conf" || true
+            fi
+        fi
+
+        # Basic skin tweaks
+        sed -i -z -e 's/skin = Seasons\n        enable = true/skin = Seasons\n        enable = false/' "${WEEWX_HOME}/weewx.conf" || true
+        sed -i -z -e 's/skin = forecast/skin = forecast\n        enable = false/' "${WEEWX_HOME}/weewx.conf" || true
 
     # Save user-editable copies
     cp "${WEEWX_HOME}/weewx.conf" "${CONFIG_PATH}"

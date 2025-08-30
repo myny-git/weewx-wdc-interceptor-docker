@@ -21,13 +21,10 @@ port:
       - 0.0.0.0
 
 file:
-  /home/weewx-data/weewx.conf:
+  /home/weewx-data/data/weewx.conf:
     exists: true
     contains:
+      - /\[Interceptor\]/
       - /device_type = wu-client/
       - /port = 9877/
       - /address = 0.0.0.0/
-      - /skin = weewx-wdc/
-
-  /home/weewx-data/data/weewx.conf:
-    exists: true
