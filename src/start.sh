@@ -11,12 +11,16 @@ else
     echo "[INFO] Using default UTC timezone (set TZ env to override)"
 fi
 
-if ! command -v busybox >/dev/null 2>&1; then
-    echo "[WARN] busybox not found (expected in image)" >&2
-else
+if [ -x /sbin/syslogd ]; then
+    echo "[INFO] Starting syslog (/sbin/syslogd)"
+    /sbin/syslogd -n -O /dev/stdout &
+elif command -v busybox >/dev/null 2>&1; then
     echo "[INFO] Starting syslog (busybox syslogd)"
     busybox syslogd -n -O /dev/stdout &
+else
+    echo "[WARN] No syslogd available" >&2
 fi
+sleep 0.2 || true
 
 # Ensure data directory exists
 mkdir -p "${WEEWX_HOME}/data"
