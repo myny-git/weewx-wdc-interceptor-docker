@@ -59,7 +59,7 @@ WORKDIR ${WEEWX_HOME}
 RUN python -m venv ${WEEWX_HOME}/weewx-venv \
  && . ${WEEWX_HOME}/weewx-venv/bin/activate \
  && pip install --upgrade pip \
- && pip install --no-cache-dir "paho-mqtt==${PAHO_MQTT_VERSION}" "weewx==${WEEWX_VERSION}"
+ && pip install --no-cache-dir "paho-mqtt==${PAHO_MQTT_VERSION}" "weewx==${WEEWX_VERSION}" "six>=1.16,<2"
 
 # Runtime will create station + install extensions; seed data dir only
 RUN mkdir -p ${WEEWX_HOME}/data
