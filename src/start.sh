@@ -57,6 +57,21 @@ if [ ! -f "${CONFIG_PATH}" ]; then
     echo "[INFO] Installing extensions"
     echo "[DEBUG] Available extension files:"
     ls -la /opt/weewx-ext/ || true
+    # Prepare interceptor archive (GitHub source zip contains top-level dir already; ensure it stays a single-root archive)
+    if [ -f /opt/weewx-ext/weewx-interceptor.zip ]; then
+        echo "[DEBUG] Validating interceptor archive structure"
+        mkdir -p /tmp/interceptor-check
+        unzip -q /opt/weewx-ext/weewx-interceptor.zip -d /tmp/interceptor-check
+        rootcount=$(find /tmp/interceptor-check -maxdepth 1 -type d | wc -l || true)
+        if [ "$rootcount" -gt 2 ]; then
+            echo "[WARN] Interceptor zip has multiple top-level dirs; repackaging"
+            firstdir=$(find /tmp/interceptor-check -mindepth 1 -maxdepth 1 -type d | head -1)
+            (cd "$firstdir" && zip -qr /opt/weewx-ext/weewx-interceptor-fixed.zip .)
+            mv /opt/weewx-ext/weewx-interceptor-fixed.zip /opt/weewx-ext/weewx-interceptor.zip
+        fi
+        rm -rf /tmp/interceptor-check
+    fi
+
     for pkg in /opt/weewx-ext/weewx-interceptor.zip /opt/weewx-ext/weewx-forecast.zip /opt/weewx-ext/weewx-xaggs.zip /opt/weewx-ext/weewx-GTS.zip /opt/weewx-ext/weewx-wdc /opt/weewx-ext/weewx-mqtt.zip; do
         if [ ! -e "${pkg}" ]; then
             echo "[ERROR] Extension file not found: ${pkg}"

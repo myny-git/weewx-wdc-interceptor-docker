@@ -42,7 +42,7 @@ WORKDIR /tmp
 
 # Download extensions (single layer)
 RUN set -eux; \
-    wget -nv -O weewx-interceptor-src.zip "https://github.com/${INTERCEPTOR_REPO}/archive/refs/tags/${INTERCEPTOR_VERSION}.zip"; \
+    wget -nv -O weewx-interceptor.zip "https://github.com/${INTERCEPTOR_REPO}/archive/refs/tags/${INTERCEPTOR_VERSION}.zip"; \
     wget -nv -O weewx-wdc-${WDC_VERSION}.zip "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip"; \
     wget -nv -O weewx-forecast.zip "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast-${WEEWX_FORECAST_VERSION}.zip"; \
     wget -nv -O weewx-mqtt.zip "https://github.com/matthewwall/weewx-mqtt/archive/master.zip"; \
@@ -50,21 +50,10 @@ RUN set -eux; \
     wget -nv -O weewx-GTS.zip "https://github.com/roe-dl/weewx-GTS/archive/master.zip"; \
     mkdir /tmp/weewx-wdc; \
     unzip -q /tmp/weewx-wdc-${WDC_VERSION}.zip -d /tmp/weewx-wdc; \
-    mkdir /tmp/interceptor-src; \
-    unzip -q /tmp/weewx-interceptor-src.zip -d /tmp/interceptor-src; \
     mkdir -p /opt/weewx-ext; \
-    mv /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
+    mv /tmp/weewx-interceptor.zip /tmp/weewx-wdc-${WDC_VERSION}.zip /tmp/weewx-forecast.zip /tmp/weewx-mqtt.zip /tmp/weewx-xaggs.zip /tmp/weewx-GTS.zip /tmp/weewx-wdc /opt/weewx-ext/
 
-# Repackage interceptor extension properly from GitHub archive
-WORKDIR /tmp/interceptor-src
-RUN ls -la && \
-    INTERCEPTOR_DIR=$(find . -name "weewx-interceptor-*" -type d | head -1) && \
-    echo "Found interceptor directory: $INTERCEPTOR_DIR" && \
-    ls -la "$INTERCEPTOR_DIR" && \
-    cd "$INTERCEPTOR_DIR" && \
-    zip -r /opt/weewx-ext/weewx-interceptor.zip . && \
-    echo "Created interceptor zip with contents:" && \
-    unzip -l /opt/weewx-ext/weewx-interceptor.zip
+WORKDIR /tmp
 
 WORKDIR ${WEEWX_HOME}
 
