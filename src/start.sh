@@ -31,6 +31,10 @@ mkdir -p "${WEEWX_HOME}/data"
 CONFIG_PATH="${WEEWX_HOME}/data/weewx.conf"
 SKIN_PATH="${WEEWX_HOME}/data/skin.conf"
 
+# Always ensure user module directory exists (also for restarts)
+mkdir -p "${WEEWX_HOME}/bin/user"
+[ -f "${WEEWX_HOME}/bin/user/__init__.py" ] || touch "${WEEWX_HOME}/bin/user/__init__.py"
+
 if [ ! -f "${CONFIG_PATH}" ]; then
     : "${LAT:=0.0}"
     : "${LON:=0.0}"
@@ -137,6 +141,32 @@ else
     cp "${CONFIG_PATH}" "${WEEWX_HOME}/weewx.conf"
     if [ -f "${SKIN_PATH}" ]; then
         cp "${SKIN_PATH}" "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" || true
+    fi
+
+    # If user extensions vanished (e.g. because /home/weewx-data/bin was not persisted), reinstall needed ones
+    if [ ! -f "${WEEWX_HOME}/bin/user/interceptor.py" ]; then
+        echo "[WARN] Interceptor module missing on restart - reinstalling extensions"
+        for pkg in /opt/weewx-ext/weewx-interceptor.zip; do
+            if [ -f "${pkg}" ]; then
+                echo "[INFO] Reinstalling ${pkg}"
+                weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${pkg}" || echo "[ERROR] Failed reinstall ${pkg}"
+            else
+                echo "[ERROR] Expected extension archive not found: ${pkg}" >&2
+            fi
+        done
+        # (Optional) reinstall mqtt etc if their modules also missing
+        for pair in mqtt:mqtt.py forecast:forecast.py xaggs:xaggs.py GTS:GTS.py; do
+            name="${pair%%:*}"; file="${pair##*:}";
+            if [ ! -f "${WEEWX_HOME}/bin/user/${file}" ]; then
+                archive="/opt/weewx-ext/weewx-${name}.zip"
+                [ "${name}" = "GTS" ] && archive="/opt/weewx-ext/weewx-GTS.zip"
+                if [ -f "${archive}" ]; then
+                    echo "[INFO] Reinstalling missing ${name} extension"
+                    weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" "${archive}" || echo "[WARN] Failed reinstall ${name}";
+                fi
+            fi
+        done
+        ls -1 "${WEEWX_HOME}/bin/user" || true
     fi
 fi
 
