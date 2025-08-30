@@ -139,7 +139,10 @@ EOF
 else
     echo "[INFO] Existing configuration detected"
     cp "${CONFIG_PATH}" "${WEEWX_HOME}/weewx.conf"
+    # Ensure skins directory base exists to avoid copy errors
+    mkdir -p "${WEEWX_HOME}/skins"
     if [ -f "${SKIN_PATH}" ]; then
+        mkdir -p "${WEEWX_HOME}/skins/weewx-wdc" || true
         cp "${SKIN_PATH}" "${WEEWX_HOME}/skins/weewx-wdc/skin.conf" || true
     fi
 
@@ -165,6 +168,22 @@ else
             fi
         done
         ls -1 "${WEEWX_HOME}/bin/user" || true
+    fi
+
+    # Reinstall WDC skin if missing (directory absent)
+    if [ ! -d "${WEEWX_HOME}/skins/weewx-wdc" ] && [ -d /opt/weewx-ext/weewx-wdc ]; then
+        echo "[WARN] WDC skin directory missing - restoring"
+        cp -a /opt/weewx-ext/weewx-wdc "${WEEWX_HOME}/skins/" || echo "[WARN] Failed to restore WDC skin"
+    fi
+
+    # Sanitize config: remove deprecated xcumulative service lines and fix malformed booleans (Truex)
+    if grep -q 'Truex' "${WEEWX_HOME}/weewx.conf"; then
+        echo "[INFO] Fixing malformed boolean 'Truex' -> 'True'"
+        sed -i 's/Truex/True/g' "${WEEWX_HOME}/weewx.conf" || true
+    fi
+    if grep -q 'user.xcumulative' "${WEEWX_HOME}/weewx.conf"; then
+        echo "[INFO] Removing deprecated user.xcumulative service entries"
+        sed -i '/user.xcumulative/d' "${WEEWX_HOME}/weewx.conf" || true
     fi
 fi
 
