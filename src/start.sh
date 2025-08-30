@@ -61,11 +61,11 @@ if [ ! -f "${CONFIG_PATH}" ]; then
     awk 'BEGIN{skip=0} /^\[Interceptor\]/{skip=1} skip && /^\[/{skip=0} !skip' "${WEEWX_HOME}/weewx.conf" > "${tmpcfg}" || cp "${WEEWX_HOME}/weewx.conf" "${tmpcfg}"
     cat >> "${tmpcfg}" <<'EOF'
 [Interceptor]
-        driver = user.interceptor
-        device_type = wu-client
-        mode = listen
-        address = 0.0.0.0
-        port = 9877
+driver = user.interceptor
+device_type = wu-client
+mode = listen
+address = 0.0.0.0
+port = 9877
 EOF
     mv "${tmpcfg}" "${WEEWX_HOME}/weewx.conf"
 
