@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.title="WeeWX with WDC + Interceptor" \
     org.opencontainers.image.source="https://github.com/myny-git/weewx-wdc-interceptor-docker" \
     org.opencontainers.image.documentation="https://github.com/${INTERCEPTOR_REPO}/releases/tag/${INTERCEPTOR_VERSION}" \
     org.opencontainers.image.licenses="GPL-3.0-or-later"
-ARG PAHO_MQTT_VERSION="1.6.1"
+ARG PAHO_MQTT_VERSION="2.1.0"
 
 ENV WEEWX_HOME="/home/weewx-data" \
     WEEWX_VERSION=${WEEWX_VERSION} \
