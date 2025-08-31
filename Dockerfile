@@ -30,7 +30,14 @@ RUN chmod +x /start.sh
 
 # Base OS deps
 RUN apt-get update \
- && apt-get install -y --no-install-recommends busybox-syslogd wget unzip zip ca-certificates tzdata \
+ && apt-get install -y --no-install-recommends \
+     busybox-syslogd \
+     wget \
+     unzip \
+     zip \
+     ca-certificates \
+     tzdata \
+     procps \
  && rm -rf /var/lib/apt/lists/*
 
 # Create user
@@ -74,7 +81,8 @@ RUN rm -rf /tmp/* ~/.cache/pip
 VOLUME [ "${WEEWX_HOME}/public_html" ]
 VOLUME [ "${WEEWX_HOME}/archive" ]
 
-# Simple healthcheck: process exists
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 CMD pgrep -f weewxd >/dev/null || exit 1
+# Healthcheck: verify weewxd process present. Interval relaxed to reduce overhead.
+# Adjust with build args or override at runtime if needed.
+HEALTHCHECK --interval=2m --timeout=10s --start-period=1m --retries=3 CMD pgrep -f weewxd >/dev/null || exit 1
 
 ENTRYPOINT [ "/start.sh" ]
