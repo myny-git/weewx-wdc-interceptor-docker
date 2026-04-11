@@ -1,9 +1,9 @@
 FROM python:3.11-slim-bookworm
 
-ARG WEEWX_VERSION="5.1.0"
+ARG WEEWX_VERSION="5.3.1"
 ARG WDC_VERSION="v3.5.1"
-ARG WEEWX_FORECAST_VERSION="3.5"
-ARG INTERCEPTOR_VERSION="v1.0.0"
+ARG WEEWX_FORECAST_VERSION="4.1"
+ARG INTERCEPTOR_VERSION="v1.0.1"
 ARG INTERCEPTOR_REPO="tfilo/weewx-interceptor"
 ARG WEEWX_UID=2749
 ARG XCUMULATIVE_REPO="hoetzgit/weewx-xcumulative"
@@ -52,7 +52,7 @@ WORKDIR /tmp
 RUN set -eux; \
     wget -nv -O weewx-interceptor.zip "https://github.com/${INTERCEPTOR_REPO}/archive/refs/tags/${INTERCEPTOR_VERSION}.zip"; \
     wget -nv -O weewx-wdc-${WDC_VERSION}.zip "https://github.com/Daveiano/weewx-wdc/releases/download/${WDC_VERSION}/weewx-wdc-${WDC_VERSION}.zip"; \
-    wget -nv -O weewx-forecast.zip "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast-${WEEWX_FORECAST_VERSION}.zip"; \
+    wget -nv -O weewx-forecast.zip "https://github.com/chaunceygardiner/weewx-forecast/releases/download/v${WEEWX_FORECAST_VERSION}/weewx-forecast.zip"; \
     wget -nv -O weewx-mqtt.zip "https://github.com/matthewwall/weewx-mqtt/archive/master.zip"; \
     wget -nv -O weewx-xaggs.zip "https://github.com/tkeffer/weewx-xaggs/archive/master.zip"; \
     wget -nv -O weewx-GTS.zip "https://github.com/roe-dl/weewx-GTS/archive/master.zip"; \
@@ -70,7 +70,7 @@ WORKDIR ${WEEWX_HOME}
 RUN python -m venv ${WEEWX_HOME}/weewx-venv \
  && . ${WEEWX_HOME}/weewx-venv/bin/activate \
  && pip install --upgrade pip \
- && pip install --no-cache-dir "paho-mqtt==${PAHO_MQTT_VERSION}" "weewx==${WEEWX_VERSION}" "six>=1.16,<2"
+ && pip install --no-cache-dir "paho-mqtt==${PAHO_MQTT_VERSION}" "weewx==${WEEWX_VERSION}"
 
 # Runtime will create station + install extensions; seed data dir only
 RUN mkdir -p ${WEEWX_HOME}/data

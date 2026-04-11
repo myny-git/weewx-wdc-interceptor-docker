@@ -20,7 +20,7 @@ services:
   weewx-python:
     container_name: weewx_bresser
 #    build: .
-    image: mynygit/weewxv5_docker:5.1.0
+    image: mynygit/weewxv5_docker:5.3.1
     ports:
       - 3010:9877
     volumes:
