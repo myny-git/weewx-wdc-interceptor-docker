@@ -27,5 +27,5 @@ jobs:
         context: .
         push: true
         tags: |
-          mynygit/weewxv5_docker:5.1.0
+          mynygit/weewxv5_docker::${{ github.ref_name }}
            
