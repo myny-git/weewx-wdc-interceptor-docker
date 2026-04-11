@@ -170,6 +170,16 @@ else
         ls -1 "${WEEWX_HOME}/bin/user" || true
     fi
 
+    # Reinstall WDC extension if Python module missing
+    if [ ! -f "${WEEWX_HOME}/bin/user/weewx_wdc.py" ] && [ ! -d "${WEEWX_HOME}/bin/user/weewx_wdc" ]; then
+        echo "[WARN] WDC Python module missing - reinstalling WDC extension"
+        if [ -e /opt/weewx-ext/weewx-wdc ]; then
+            weectl extension install -y --config "${WEEWX_HOME}/weewx.conf" /opt/weewx-ext/weewx-wdc || echo "[ERROR] Failed reinstall WDC"
+        else
+            echo "[ERROR] Expected WDC extension not found: /opt/weewx-ext/weewx-wdc" >&2
+        fi
+    fi
+
     # Reinstall WDC skin if missing (directory absent)
     if [ ! -d "${WEEWX_HOME}/skins/weewx-wdc" ] && [ -d /opt/weewx-ext/weewx-wdc ]; then
         echo "[WARN] WDC skin directory missing - restoring"
