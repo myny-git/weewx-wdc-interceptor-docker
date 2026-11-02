@@ -2,85 +2,56 @@ name: Test & Lint
 
 on:
   push:
-    branches: [ main ]
-    paths: [ 'Dockerfile', 'src/**', 'goss.yaml', '.hadolint.yaml', '.github/workflows/test.yml' ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
+  workflow_call:
 
-concurrency:
-  group: test-and-lint-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  IMAGE_NAME: weewx-test
-  GOSS_VERSION: v0.3.16
-  PAHO_MQTT_VERSION: 1.6.1
-  INTERCEPTOR_VERSION: v1.0.0
+permissions:
+  contents: read
 
 jobs:
-  shellcheck:
-    name: ShellCheck
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run ShellCheck
+      - name: ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
-
-  hadolint:
-    name: Hadolint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run hadolint
+      - name: Hadolint
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
-          verbose: true
+      - name: Python syntax
+        run: python3 -m compileall -q src tests
+      - name: Backup failure and restore checks
+        run: bash tests/test_backup.sh
 
-  dgoss:
-    name: dgoss validation
+  integration:
     runs-on: ubuntu-latest
-    needs: [ shellcheck, hadolint ]
+    needs: lint
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the production image
+        uses: docker/build-push-action@v6
         with:
-          path: /tmp/.buildx-cache
-          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            buildx-${{ runner.os }}-
-
-      - name: Build image
+          context: .
+          load: true
+          tags: weewx-test:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Migration, persistence and Forecast database tests
         run: |
-          docker build \
-            --build-arg PAHO_MQTT_VERSION=${PAHO_MQTT_VERSION} \
-            --build-arg INTERCEPTOR_VERSION=${INTERCEPTOR_VERSION} \
-            -t ${IMAGE_NAME} .
-
-      - name: Install goss/dgoss
-        uses: e1himself/goss-installation-action@v1.2.1
+          docker run --rm --entrypoint python \
+            --mount "type=bind,source=$PWD/tests,target=/tests,readonly" \
+            weewx-test:ci -m unittest discover -s /tests -v
+      - name: Container start, replacement and full backup/restore
+        run: bash tests/smoke.sh weewx-test:ci
+      - name: Save the tested image
+        run: docker save weewx-test:ci -o /tmp/weewx-image.tar
+      - uses: actions/upload-artifact@v4
         with:
-          version: ${{ env.GOSS_VERSION }}
-
-      - name: Run dgoss tests
-        env:
-          GOSS_FILES_STRATEGY: cp
-          GOSS_PATH: /opt/hostedtoolcache/goss/0.3.16/amd64/goss
-          GOSS_SLEEP: 5
-          GOSS_WAIT_OPTS: -r 90s -s 2s
-        run: |
-          # Expose port needed for tests
-          sudo -E /opt/hostedtoolcache/dgoss/0.3.16/amd64/dgoss run -p 9877:9877 ${IMAGE_NAME}
-
-  summary:
-    name: Summary
-    runs-on: ubuntu-latest
-    needs: [ dgoss ]
-    steps:
-      - run: echo "All tests completed." 
+          name: tested-image
+          path: /tmp/weewx-image.tar
+          retention-days: 3

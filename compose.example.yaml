@@ -1,0 +1,36 @@
+services:
+  weewx-python:
+    container_name: weewx_bresser
+    image: mynygit/weewxv5_docker:5.5.2
+    environment:
+      TZ: Europe/Brussels
+    ports:
+      - "3010:9877"
+    volumes:
+      - weewx-db:/home/weewx-data/archive
+      - weewx-html:/home/weewx-data/public_html
+      - type: bind
+        source: ${WEEWX_DATA_DIR:?Set the existing config directory}
+        target: /home/weewx-data/data
+        bind:
+          create_host_path: false
+    restart: unless-stopped
+    stop_grace_period: 60s
+
+  weewx-web:
+    container_name: weewx_bresser_web
+    # Keep the existing nginx image/tag in an existing deployment.
+    image: nginx:stable
+    ports:
+      - "8014:80"
+    volumes:
+      - weewx-html:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  weewx-db:
+    external: true
+    name: ${WEEWX_DB_VOLUME:?Set the actual existing archive volume name}
+  weewx-html:
+    external: true
+    name: ${WEEWX_HTML_VOLUME:?Set the actual existing website volume name}

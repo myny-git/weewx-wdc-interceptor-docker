@@ -12,3 +12,7 @@ LICENSE
 *.gz
 **/__pycache__/
 **/*.pyc
+.test-deps
+tests
+admin_scripts
+compose.example.yaml
