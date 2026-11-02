@@ -13,9 +13,9 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
       - name: Hadolint
@@ -28,13 +28,13 @@ jobs:
         run: bash tests/test_backup.sh
 
   integration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: lint
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7.0.1
+      - uses: docker/setup-buildx-action@v4.4.1
       - name: Build the production image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           load: true
@@ -50,8 +50,15 @@ jobs:
         run: bash tests/smoke.sh weewx-test:ci
       - name: Save the tested image
         run: docker save weewx-test:ci -o /tmp/weewx-image.tar
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: tested-image
           path: /tmp/weewx-image.tar
           retention-days: 3
+      - name: Verify artifact transfer used by publishing
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: tested-image
+          path: /tmp/image-roundtrip
+      - name: Check downloaded image matches the tested image
+        run: cmp /tmp/weewx-image.tar /tmp/image-roundtrip/weewx-image.tar
