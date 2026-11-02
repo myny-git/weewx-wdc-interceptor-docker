@@ -1,6 +1,7 @@
 #!/bin/bash
 # This test owns every container, volume and directory it removes.
-set -euo pipefail
+set -Eeuo pipefail
+trap 'echo "::error file=tests/smoke.sh,line=$LINENO::Container smoke test failed" >&2' ERR
 image=${1:-weewx-test:ci}
 name="weewx-ci-${RANDOM}-$$"
 test_dir=$(mktemp -d)
@@ -10,6 +11,11 @@ cleanup() {
     trap - EXIT
     if [[ "$result" != 0 ]]; then docker logs --tail 60 "$name" || true; fi
     docker rm -fv "$name" >/dev/null 2>&1 || true
+    # The production container runs as root. Linux runners must regain ownership
+    # of their temporary bind mounts before removing the test directory.
+    docker run --rm --user 0:0 --entrypoint chown \
+        --mount "type=bind,source=$test_dir,target=/test" \
+        "$image" -Rh "$(id -u):$(id -g)" /test >/dev/null 2>&1 || true
     rm -rf -- "$test_dir"
     exit "$result"
 }
@@ -43,7 +49,11 @@ mkdir "$test_dir/restored"
 tar -xzf "$archive" -C "$test_dir/restored"
 mkdir "$test_dir/restored/station"
 tar -xf "$test_dir/restored/station.tar" -C "$test_dir/restored/station"
-cmp "$test_dir/data/weewx.conf" "$test_dir/restored/station/data/weewx.conf"
+# Configs are deliberately mode 0600/root-owned. Compare them as root inside
+# a test-only container rather than weakening their production permissions.
+docker run --rm --user 0:0 --entrypoint cmp \
+    --mount "type=bind,source=$test_dir,target=/test,readonly" \
+    "$image" /test/data/weewx.conf /test/restored/station/data/weewx.conf
 test -f "$test_dir/restored/station/archive/weewx.sdb"
 test -f "$test_dir/restored/station/data/station/skins/weewx-wdc/custom.html.tmpl"
 # Replace the container while keeping exactly the three original mounts.
